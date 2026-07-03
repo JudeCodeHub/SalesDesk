@@ -40,7 +40,8 @@ npm run dev
 
 ### Sales Order Editor
 ![Sales Order Editor](https://github.com/user-attachments/assets/d8888fe2-31bf-4c4f-a617-96056e45bbf4)
-<img width="1920" height="1080" alt="Screenshot 2026-07-03 202400" src="https://github.com/user-attachments/assets/70a059b2-6033-4bcc-b135-01ae7d976106" />
+<img width="1900" height="1079" alt="Screenshot 2026-07-03 202519" src="https://github.com/user-attachments/assets/04918b96-1572-4fa7-9417-6928904d04d3" />
+
 
 
 ### Generated PDF Invoice
