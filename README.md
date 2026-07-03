@@ -67,22 +67,7 @@ npm run dev
 ```
 The frontend will start at `http://localhost:5174`.
 
----
 
-## 🚢 Deployment Guide
-
-The application is fully ready to be deployed to production.
-
-### Backend Deployment (Azure / IIS / Linux)
-1. **Configure Database**: In `appsettings.Production.json`, set your production SQL Server connection string.
-2. **Publish API**: Run `dotnet publish -c Release -o ./publish`.
-3. **CORS Configuration**: Update `Program.cs` to allow your production frontend URL instead of just `localhost` (e.g. `policy.WithOrigins("https://salesdesk.yourdomain.com")`).
-4. **Deploy**: Upload the `./publish` folder to your IIS web server, Azure App Service, or Docker container.
-
-### Frontend Deployment (Vercel / Netlify / Azure Static Web Apps)
-1. **Set API URL**: In `frontend/src/services/api.js`, update the `baseURL` from `http://localhost:5000/api` to your production backend URL (e.g., `https://api.yourdomain.com/api`).
-2. **Build for Production**: Run `npm run build` in the `frontend` folder.
-3. **Deploy**: The `dist` folder will be created. You can upload this folder directly to any static file host like Netlify, Vercel, or AWS S3.
 
 ---
 
