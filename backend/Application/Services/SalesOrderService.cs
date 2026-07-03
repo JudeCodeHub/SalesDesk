@@ -33,6 +33,11 @@ namespace SalesDesk.Application.Services
 
         public async Task CreateOrderAsync(SalesOrderDto dto)
         {
+            if (await _salesOrderRepository.InvoiceNoExistsAsync(dto.InvoiceNo))
+            {
+                throw new ArgumentException("Invoice number already exists");
+            }
+
             var order = _mapper.Map<SalesOrder>(dto);
             CalculateOrderTotals(order);
             order.CreatedDate = DateTime.UtcNow;
@@ -42,6 +47,11 @@ namespace SalesDesk.Application.Services
 
         public async Task UpdateOrderAsync(int id, SalesOrderDto dto)
         {
+            if (await _salesOrderRepository.InvoiceNoExistsAsync(dto.InvoiceNo, id))
+            {
+                throw new ArgumentException("Invoice number already exists");
+            }
+
             var existingOrder = await _salesOrderRepository.GetByIdAsync(id);
             if (existingOrder == null)
             {

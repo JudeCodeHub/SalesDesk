@@ -18,6 +18,11 @@ namespace SalesDesk.Infrastructure.Data
         {
             base.OnModelCreating(modelBuilder);
 
+            // Add Unique Index
+            modelBuilder.Entity<SalesOrder>()
+                .HasIndex(o => o.InvoiceNo)
+                .IsUnique();
+
             // Define Primary Keys
             modelBuilder.Entity<SalesOrder>().HasKey(so => so.OrderId);
             modelBuilder.Entity<SalesOrderLine>().HasKey(sol => sol.LineId);

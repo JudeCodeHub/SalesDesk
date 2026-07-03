@@ -34,6 +34,21 @@ namespace SalesDesk.Infrastructure.Repositories
                 .FirstOrDefaultAsync(so => so.OrderId == id);
         }
 
+        public async Task<bool> InvoiceNoExistsAsync(string invoiceNo, int? excludeOrderId = null)
+        {
+            if (string.IsNullOrWhiteSpace(invoiceNo))
+                return false;
+
+            var query = _context.SalesOrders.AsQueryable();
+
+            if (excludeOrderId.HasValue)
+            {
+                query = query.Where(o => o.OrderId != excludeOrderId.Value);
+            }
+
+            return await query.AnyAsync(o => o.InvoiceNo == invoiceNo);
+        }
+
         public async Task AddAsync(SalesOrder order)
         {
             await _context.SalesOrders.AddAsync(order);

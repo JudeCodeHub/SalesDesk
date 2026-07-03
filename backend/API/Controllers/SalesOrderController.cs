@@ -44,8 +44,19 @@ namespace SalesDesk.API.Controllers
                 return BadRequest(ModelState);
             }
             
-            await _salesOrderService.CreateOrderAsync(dto);
-            return Ok();
+            try
+            {
+                await _salesOrderService.CreateOrderAsync(dto);
+                return Ok();
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
         }
 
         [HttpPut("{id}")]
@@ -61,13 +72,17 @@ namespace SalesDesk.API.Controllers
                 await _salesOrderService.UpdateOrderAsync(id, dto);
                 return Ok();
             }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
             catch (Exception ex)
             {
                 if (ex.Message == "Order not found")
                 {
                     return NotFound();
                 }
-                return BadRequest(ex.Message);
+                return StatusCode(500, ex.Message);
             }
         }
 

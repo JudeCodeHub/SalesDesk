@@ -8,6 +8,7 @@ namespace SalesDesk.Application.Interfaces
     {
         Task<IEnumerable<SalesOrder>> GetAllAsync();
         Task<SalesOrder> GetByIdAsync(int id);
+        Task<bool> InvoiceNoExistsAsync(string invoiceNo, int? excludeOrderId = null);
         Task AddAsync(SalesOrder order);
         Task UpdateAsync(SalesOrder order);
         Task DeleteAsync(int id);

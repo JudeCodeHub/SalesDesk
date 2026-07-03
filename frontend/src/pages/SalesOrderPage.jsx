@@ -6,6 +6,9 @@ import { fetchItems } from '../redux/slices/itemSlice';
 import { fetchOrderById, createOrder, updateOrder } from '../redux/slices/orderSlice';
 import { Plus, Trash2, Save, X, ShoppingCart } from 'lucide-react';
 import toast from 'react-hot-toast';
+import SalesOrderTable from '../components/SalesOrderTable';
+import SalesOrderHeader from '../components/SalesOrderHeader';
+import { TotalRow } from '../components/SalesOrderInputs';
 
 export default function SalesOrderPage() {
     const { id } = useParams();
@@ -36,6 +39,9 @@ export default function SalesOrderPage() {
         itemId: '', itemCode: '', description: '', note: '',
         quantity: 0, price: 0, taxRate: 0, exclAmount: 0, taxAmount: 0, inclAmount: 0
     }]);
+
+    const [formErrors, setFormErrors] = useState({});
+    const [submitAttempted, setSubmitAttempted] = useState(false);
 
     useEffect(() => {
         dispatch(fetchClients());
@@ -107,6 +113,9 @@ export default function SalesOrderPage() {
                 state: selected.state || '',
                 postCode: selected.postCode || ''
             }));
+            if (submitAttempted && formErrors.clientId) {
+                setFormErrors(prev => ({ ...prev, clientId: undefined }));
+            }
         } else {
             setHeader(prev => ({
                 ...prev,
@@ -119,7 +128,35 @@ export default function SalesOrderPage() {
 
     const handleHeaderChange = (e) => {
         const { name, value } = e.target;
+        
+        if (name === 'suburb' || name === 'state') {
+            if (!/^[A-Za-z\s]*$/.test(value)) return;
+        }
+        if (['address1', 'address2', 'address3'].includes(name)) {
+            if (!/^[A-Za-z0-9\s,\.\/\-]*$/.test(value)) return;
+        }
+        if (name === 'postCode') {
+            if (!/^[0-9]{0,5}$/.test(value)) return;
+        }
+
         setHeader(prev => ({ ...prev, [name]: value }));
+        
+        if (submitAttempted && formErrors[name]) {
+            setFormErrors(prev => ({ ...prev, [name]: undefined }));
+        }
+    };
+
+    const handleNumericKeyDown = (e) => {
+        if ([46, 8, 9, 27, 13, 110, 190].indexOf(e.keyCode) !== -1 ||
+            (e.keyCode === 65 && (e.ctrlKey === true || e.metaKey === true)) ||
+            (e.keyCode === 67 && (e.ctrlKey === true || e.metaKey === true)) ||
+            (e.keyCode === 86 && (e.ctrlKey === true || e.metaKey === true)) ||
+            (e.keyCode >= 35 && e.keyCode <= 40)) {
+                return;
+        }
+        if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105)) {
+            e.preventDefault();
+        }
     };
 
     const handleLineItemChange = (index, e) => {
@@ -184,10 +221,28 @@ export default function SalesOrderPage() {
     }, [lines]);
 
     const handleSave = async () => {
-        if (!header.clientId) {
-            alert("Please select a customer.");
+        setSubmitAttempted(true);
+        let errors = {};
+        
+        if (!header.clientId) errors.clientId = "Customer is required";
+        if (!header.invoiceNo) errors.invoiceNo = "Invoice No is required";
+        if (!header.invoiceDate) errors.invoiceDate = "Invoice Date is required";
+
+        const validLines = lines.filter(l => l.itemId && parseFloat(l.quantity) > 0);
+        if (validLines.length === 0) {
+            errors.lines = "At least 1 line item with Item Code and Quantity > 0 is required";
+        }
+
+        if (Object.keys(errors).length > 0) {
+            setFormErrors(errors);
+            setTimeout(() => {
+                const firstError = document.querySelector('.border-red-500');
+                if (firstError) firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }, 100);
             return;
         }
+        
+        setFormErrors({});
 
         const payload = {
             clientId: parseInt(header.clientId, 10),
@@ -221,7 +276,16 @@ export default function SalesOrderPage() {
             }
             navigate('/');
         } catch (err) {
-            toast.error("Failed to save order: " + err);
+            const errMsg = typeof err === 'string' ? err : err?.message || JSON.stringify(err);
+            if (errMsg.toLowerCase().includes("invoice number already exists") || errMsg.toLowerCase().includes("already used")) {
+                setFormErrors({ invoiceNo: "This invoice number is already used" });
+                setTimeout(() => {
+                    const firstError = document.querySelector('.border-red-500');
+                    if (firstError) firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }, 100);
+            } else {
+                toast.error("Failed to save order: " + errMsg);
+            }
         }
     };
 
@@ -233,25 +297,7 @@ export default function SalesOrderPage() {
         );
     }
 
-    const inputClass = "w-full bg-slate-800 border border-slate-600 rounded-lg px-3 py-2 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm transition-colors";
-    const readOnlyClass = "w-full bg-slate-700/50 border border-slate-600/50 rounded-lg px-3 py-2 text-white placeholder-slate-400 cursor-not-allowed text-sm opacity-80 transition-colors";
-    const inputClassRight = `${inputClass} text-right`;
-    const readOnlyClassRight = `${readOnlyClass} text-right`;
     const labelClass = "block text-sm font-medium text-slate-400 mb-1.5";
-
-    const FormInput = ({ label, name, type = "text" }) => (
-        <div>
-            <label className={labelClass}>{label}</label>
-            <input type={type} name={name} value={header[name]} onChange={handleHeaderChange} className={inputClass} />
-        </div>
-    );
-
-    const TotalRow = ({ label, amount, isGrand }) => (
-        <div className={`flex justify-between ${isGrand ? 'border-t border-slate-700/50 pt-4 mt-2' : 'mb-3 text-sm'}`}>
-            <span className={`font-${isGrand ? 'bold text-lg text-slate-200' : 'semibold text-slate-500'} uppercase tracking-wider`}>{label}</span>
-            <span className={`${isGrand ? 'font-bold text-xl text-emerald-400' : 'text-slate-300 text-base font-medium'} tabular-nums`}>${Number(amount || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
-        </div>
-    );
 
     return (
         <div className="w-full pb-32">
@@ -283,119 +329,26 @@ export default function SalesOrderPage() {
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-                {/* Left Section */}
-                <div className="bg-slate-800/40 rounded-xl border border-slate-700/50 p-6 shadow-sm opacity-0 animate-fade-in-up" style={{ animationDelay: '50ms' }}>
-                    <h2 className="text-lg font-bold mb-5 text-slate-200 border-b border-slate-700/50 pb-3">Customer Details</h2>
-                    <div className="grid grid-cols-1 gap-4">
-                        <div>
-                            <label className={labelClass}>Customer Name</label>
-                            <select 
-                                name="clientId" 
-                                value={header.clientId} 
-                                onChange={handleClientChange}
-                                className={inputClass}
-                            >
-                                <option value="" className="bg-slate-800 text-slate-400">-- Select Customer --</option>
-                                {clients.map(c => (
-                                    <option key={c.clientId} value={c.clientId} className="bg-slate-800">{c.customerName}</option>
-                                ))}
-                            </select>
-                        </div>
-                        <FormInput label="Address 1" name="address1" />
-                        <FormInput label="Address 2" name="address2" />
-                        <FormInput label="Address 3" name="address3" />
-                        <div className="grid grid-cols-3 gap-4">
-                            <FormInput label="Suburb" name="suburb" />
-                            <FormInput label="State" name="state" />
-                            <FormInput label="Post Code" name="postCode" />
-                        </div>
-                    </div>
-                </div>
-
-                {/* Right Section */}
-                <div className="bg-slate-800/40 rounded-xl border border-slate-700/50 p-6 shadow-sm opacity-0 animate-fade-in-up" style={{ animationDelay: '100ms' }}>
-                    <h2 className="text-lg font-bold mb-5 text-slate-200 border-b border-slate-700/50 pb-3">Order Details</h2>
-                    <div className="grid grid-cols-1 gap-4">
-                        <div className="grid grid-cols-2 gap-4">
-                            <FormInput label="Invoice No" name="invoiceNo" />
-                            <FormInput label="Invoice Date" name="invoiceDate" type="date" />
-                        </div>
-                        <FormInput label="Reference No" name="referenceNo" />
-                        <div>
-                            <label className={labelClass}>Note</label>
-                            <textarea name="note" value={header.note} onChange={handleHeaderChange} rows="4" className={inputClass}></textarea>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <SalesOrderHeader 
+                header={header} 
+                clients={clients} 
+                handleHeaderChange={handleHeaderChange} 
+                handleClientChange={handleClientChange} 
+                formErrors={formErrors} 
+                submitAttempted={submitAttempted} 
+            />
 
             {/* Line Items */}
-            <div className="bg-slate-800/40 rounded-xl border border-slate-700/50 mb-6 overflow-hidden shadow-sm opacity-0 animate-fade-in-up" style={{ animationDelay: '150ms' }}>
-                <div className="p-5 border-b border-slate-700/50 bg-slate-800/60 flex justify-between items-center">
-                    <h2 className="text-lg font-bold text-slate-200">Items</h2>
-                    <button onClick={handleAddLine} className="flex items-center gap-1.5 bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-400 hover:text-indigo-300 text-xs font-semibold py-1.5 px-3 rounded-lg border border-indigo-500/30 transition-colors">
-                        <Plus className="w-3.5 h-3.5" />
-                        Add
-                    </button>
-                </div>
-                <div className="overflow-x-auto p-4">
-                    <table className="min-w-full border-separate" style={{ borderSpacing: '0 8px' }}>
-                        <thead>
-                            <tr>
-                                <th className="px-2 pb-2 text-left text-xs font-semibold text-slate-400 uppercase tracking-wider w-40">Item Code</th>
-                                <th className="px-2 pb-2 text-left text-xs font-semibold text-slate-400 uppercase tracking-wider w-56">Description</th>
-                                <th className="px-2 pb-2 text-left text-xs font-semibold text-slate-400 uppercase tracking-wider w-48">Note</th>
-                                <th className="px-2 pb-2 text-right text-xs font-semibold text-slate-400 uppercase tracking-wider w-24">Qty</th>
-                                <th className="px-2 pb-2 text-right text-xs font-semibold text-slate-400 uppercase tracking-wider w-32">Price</th>
-                                <th className="px-2 pb-2 text-right text-xs font-semibold text-slate-400 uppercase tracking-wider w-24">Tax (%)</th>
-                                <th className="px-2 pb-2 text-right text-xs font-semibold text-slate-400 uppercase tracking-wider w-28">Excl</th>
-                                <th className="px-2 pb-2 text-right text-xs font-semibold text-slate-400 uppercase tracking-wider w-28">Tax</th>
-                                <th className="px-2 pb-2 text-right text-xs font-semibold text-slate-400 uppercase tracking-wider w-28">Incl</th>
-                                <th className="px-2 pb-2"></th>
-                            </tr>
-                        </thead>
-                        <tbody className="bg-transparent">
-                            {lines.map((line, index) => (
-                                <tr key={index} className="group">
-                                    <td className="px-1">
-                                        <select name="itemId" value={line.itemId} onChange={e => handleLineItemChange(index, e)} className={inputClass}>
-                                            <option value="" className="bg-slate-800">- Code -</option>
-                                            {items.map(i => <option key={i.itemId} value={i.itemId} className="bg-slate-800">{i.itemCode}</option>)}
-                                        </select>
-                                    </td>
-                                    <td className="px-1">
-                                        <select name="itemId" value={line.itemId} onChange={e => handleLineItemChange(index, e)} className={inputClass}>
-                                            <option value="" className="bg-slate-800">- Desc -</option>
-                                            {items.map(i => <option key={i.itemId} value={i.itemId} className="bg-slate-800">{i.description}</option>)}
-                                        </select>
-                                    </td>
-                                    <td className="px-1">
-                                        <input type="text" name="note" value={line.note} onChange={e => handleLineItemChange(index, e)} className={inputClass} placeholder="Optional" />
-                                    </td>
-                                    <td className="px-1">
-                                        <input type="number" step="1" name="quantity" value={line.quantity} onChange={e => handleLineItemChange(index, e)} className={inputClassRight} />
-                                    </td>
-                                    <td className="px-1">
-                                        <input type="text" readOnly value={Number(line.price || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} className={readOnlyClassRight} />
-                                    </td>
-                                    <td className="px-1">
-                                        <input type="number" step="0.01" name="taxRate" value={line.taxRate} onChange={e => handleLineItemChange(index, e)} className={inputClassRight} />
-                                    </td>
-                                    <td className="px-2 text-right text-sm text-slate-400 tabular-nums font-medium">${Number(line.exclAmount || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
-                                    <td className="px-2 text-right text-sm text-slate-400 tabular-nums font-medium">${Number(line.taxAmount || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
-                                    <td className="px-2 text-right text-sm font-bold text-slate-200 tabular-nums">${Number(line.inclAmount || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
-                                    <td className="px-1 text-center">
-                                        <button onClick={() => removeLine(index)} className="p-2 text-red-500 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100" title="Remove Line">
-                                            <Trash2 className="w-5 h-5" />
-                                        </button>
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+            <SalesOrderTable 
+                lines={lines} 
+                items={items} 
+                handleLineItemChange={handleLineItemChange} 
+                handleAddLine={handleAddLine} 
+                removeLine={removeLine} 
+                handleNumericKeyDown={handleNumericKeyDown} 
+                submitAttempted={submitAttempted} 
+                formErrors={formErrors} 
+            />
 
             {/* Totals Section */}
             <div className="flex justify-end opacity-0 animate-fade-in-up" style={{ animationDelay: '200ms' }}>

@@ -9,7 +9,8 @@ SalesDesk is a beautifully designed, modern web application for managing sales o
 - **Modern UI/UX**: A stunning, responsive dark mode interface powered by Tailwind CSS v4, Framer Motion animations, and Lucide Icons.
 - **Sales Order Management**: Create, edit, delete, and view sales orders effortlessly.
 - **Dynamic Line Items**: Automatically calculates taxes, subtotals, and totals in real-time as you add items to the order.
-- **Instant PDF Generation**: Converts your sales orders into beautifully formatted PDF invoices instantly within the browser (no server trips required) using `dom-to-image` and `jsPDF`.
+- **Instant PDF Generation**: Converts your sales orders into beautifully formatted PDF invoices instantly within the browser (no server trips required) using `html2pdf.js`.
+- **Form Validation**: Clean UX with form requirements and database uniqueness constraints for Invoice Numbers.
 - **Toast Notifications**: Sleek, non-intrusive UI notifications for all actions (saves, deletions, errors) using `react-hot-toast`.
 - **Robust Backend**: Powered by ASP.NET Core with Entity Framework Core, providing a fast and reliable RESTful API.
 
@@ -24,22 +25,22 @@ SalesDesk is a beautifully designed, modern web application for managing sales o
 - **Tailwind CSS v4** (Utility-first styling framework)
 - **Framer Motion** (Smooth animations)
 - **Axios** (API requests)
-- **dom-to-image & jsPDF** (Client-side PDF rendering)
+- **html2pdf.js** (Client-side PDF rendering)
 
 ### Backend
-- **C# / ASP.NET Core**
+- **C# / ASP.NET Core 8.0**
 - **Entity Framework Core**
-- **SQL Server / SQLite** (Database layer)
+- **SQL Server** (Database layer)
 
 ---
 
-## 🚀 Getting Started
+## 🚀 Getting Started (Development)
 
 ### Prerequisites
 Make sure you have the following installed on your machine:
 - [Node.js](https://nodejs.org/) (v18 or higher)
 - [.NET 8 SDK](https://dotnet.microsoft.com/)
-- SQL Server (or you can easily swap the connection string to use SQLite/LocalDB)
+- SQL Server (or SQL Server Express / LocalDB)
 
 ### 1. Clone the repository
 ```bash
@@ -55,7 +56,7 @@ dotnet restore
 dotnet ef database update
 dotnet run
 ```
-The backend API will start at `http://localhost:5000` (or similar).
+The backend API will start at `http://localhost:5000` (or similar, check terminal output).
 
 ### 3. Setup the Frontend
 Open a new terminal window, navigate to the frontend directory, install dependencies, and start the Vite dev server:
@@ -68,19 +69,23 @@ The frontend will start at `http://localhost:5174`.
 
 ---
 
+## 🚢 Deployment Guide
+
+The application is fully ready to be deployed to production.
+
+### Backend Deployment (Azure / IIS / Linux)
+1. **Configure Database**: In `appsettings.Production.json`, set your production SQL Server connection string.
+2. **Publish API**: Run `dotnet publish -c Release -o ./publish`.
+3. **CORS Configuration**: Update `Program.cs` to allow your production frontend URL instead of just `localhost` (e.g. `policy.WithOrigins("https://salesdesk.yourdomain.com")`).
+4. **Deploy**: Upload the `./publish` folder to your IIS web server, Azure App Service, or Docker container.
+
+### Frontend Deployment (Vercel / Netlify / Azure Static Web Apps)
+1. **Set API URL**: In `frontend/src/services/api.js`, update the `baseURL` from `http://localhost:5000/api` to your production backend URL (e.g., `https://api.yourdomain.com/api`).
+2. **Build for Production**: Run `npm run build` in the `frontend` folder.
+3. **Deploy**: The `dist` folder will be created. You can upload this folder directly to any static file host like Netlify, Vercel, or AWS S3.
+
+---
+
 ## 📸 Screenshots
 
 *(Add screenshots of your application here after pushing to GitHub! Recommended: Home Page, Sales Order Editor, and the Generated PDF Invoice)*
-
----
-
-## 🤝 Contributing
-
-Contributions, issues, and feature requests are welcome!
-Feel free to check [issues page](https://github.com/yourusername/SalesDesk/issues).
-
----
-
-## 📝 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
