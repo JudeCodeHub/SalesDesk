@@ -1,6 +1,6 @@
 import React from 'react';
 import { Plus, Trash2 } from 'lucide-react';
-import { inputClass, inputClassRight, readOnlyClassRight } from './SalesOrderInputs';
+import { inputClass, readOnlyClass } from './SalesOrderInputs';
 
 export default function SalesOrderTable({ 
     lines, items, handleLineItemChange, handleAddLine, removeLine, 
@@ -27,12 +27,12 @@ export default function SalesOrderTable({
                             <th className="px-2 pb-2 text-left text-xs font-semibold text-slate-400 uppercase tracking-wider w-40">Item Code</th>
                             <th className="px-2 pb-2 text-left text-xs font-semibold text-slate-400 uppercase tracking-wider w-96 min-w-[350px]">Description</th>
                             <th className="px-2 pb-2 text-left text-xs font-semibold text-slate-400 uppercase tracking-wider w-48">Note</th>
-                            <th className="px-2 pb-2 text-right text-xs font-semibold text-slate-400 uppercase tracking-wider w-24">Qty</th>
-                            <th className="px-2 pb-2 text-right text-xs font-semibold text-slate-400 uppercase tracking-wider w-32">Price</th>
-                            <th className="px-2 pb-2 text-right text-xs font-semibold text-slate-400 uppercase tracking-wider w-24">Tax (%)</th>
-                            <th className="px-2 pb-2 text-right text-xs font-semibold text-slate-400 uppercase tracking-wider w-28">Excl</th>
-                            <th className="px-2 pb-2 text-right text-xs font-semibold text-slate-400 uppercase tracking-wider w-28">Tax</th>
-                            <th className="px-2 pb-2 text-right text-xs font-semibold text-slate-400 uppercase tracking-wider w-28">Incl</th>
+                            <th className="px-2 pb-2 text-left text-xs font-semibold text-slate-400 uppercase tracking-wider w-24">Qty</th>
+                            <th className="px-2 pb-2 text-left text-xs font-semibold text-slate-400 uppercase tracking-wider w-32">Price</th>
+                            <th className="px-2 pb-2 text-left text-xs font-semibold text-slate-400 uppercase tracking-wider w-24">Tax (%)</th>
+                            <th className="px-2 pb-2 text-left text-xs font-semibold text-slate-400 uppercase tracking-wider w-28">Excl</th>
+                            <th className="px-2 pb-2 text-left text-xs font-semibold text-slate-400 uppercase tracking-wider w-28">Tax</th>
+                            <th className="px-2 pb-2 text-left text-xs font-semibold text-slate-400 uppercase tracking-wider w-28">Incl</th>
                             <th className="px-2 pb-2"></th>
                         </tr>
                     </thead>
@@ -55,17 +55,17 @@ export default function SalesOrderTable({
                                     <input type="text" name="note" value={line.note} onChange={e => handleLineItemChange(index, e)} className={inputClass} placeholder="Optional" />
                                 </td>
                                 <td className="px-1">
-                                    <input type="number" step="1" min="1" name="quantity" value={line.quantity} onChange={e => handleLineItemChange(index, e)} onKeyDown={handleNumericKeyDown} className={inputClassRight} />
+                                    <input type="number" step="1" min="1" name="quantity" value={line.quantity} onChange={e => handleLineItemChange(index, e)} onKeyDown={handleNumericKeyDown} className={inputClass} />
                                 </td>
                                 <td className="px-1">
-                                    <input type="text" readOnly value={Number(line.price || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} className={readOnlyClassRight} />
+                                    <input type="text" readOnly value={Number(line.price || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} className={readOnlyClass} />
                                 </td>
                                 <td className="px-1">
-                                    <input type="number" step="0.01" min="0" max="100" name="taxRate" value={line.taxRate} onChange={e => handleLineItemChange(index, e)} onKeyDown={handleNumericKeyDown} className={inputClassRight} />
+                                    <input type="number" step="0.01" min="0" max="100" name="taxRate" value={line.taxRate} onChange={e => handleLineItemChange(index, e)} onKeyDown={handleNumericKeyDown} className={inputClass} />
                                 </td>
-                                <td className="px-2 text-right text-sm text-slate-400 tabular-nums font-medium">${Number(line.exclAmount || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
-                                <td className="px-2 text-right text-sm text-slate-400 tabular-nums font-medium">${Number(line.taxAmount || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
-                                <td className="px-2 text-right text-sm font-bold text-slate-200 tabular-nums">${Number(line.inclAmount || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                                <td className="px-2 text-left text-sm text-slate-400 tabular-nums font-medium">${Number(line.exclAmount || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                                <td className="px-2 text-left text-sm text-slate-400 tabular-nums font-medium">${Number(line.taxAmount || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                                <td className="px-2 text-left text-sm font-bold text-slate-200 tabular-nums">${Number(line.inclAmount || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
                                 <td className="px-1 text-center">
                                     <button onClick={() => removeLine(index)} className="p-2 text-red-500 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100" title="Remove Line">
                                         <Trash2 className="w-5 h-5" />
