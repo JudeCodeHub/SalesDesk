@@ -6,7 +6,7 @@ A sleek, modern web application for managing sales orders and generating instant
 
 ## 🌍 Live Demo
 **[🚀 View the live application here!](https://salesdeesk.vercel.app)**  
-*(You can edit this link on GitHub to point to your exact URL if needed)*
+
 
 ---
 
