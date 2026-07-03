@@ -197,11 +197,11 @@ export default function HomePage() {
                     orderId={downloadingOrderId}
                     onComplete={() => {
                         setDownloadingOrderId(null);
-                        toast.success("PDF Downloaded successfully!");
+                        toast.success("Invoice downloaded successfully!");
                     }}
                     onError={(err) => {
                         setDownloadingOrderId(null);
-                        toast.error(`Failed to download PDF: ${err}`);
+                        toast.error(`Failed to download invoice: ${err}`);
                     }}
                 />
             )}
