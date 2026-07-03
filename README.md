@@ -4,6 +4,12 @@ A sleek, modern web application for managing sales orders and generating instant
 
 ---
 
+## 🌍 Live Demo
+**[🚀 View the live application here!](https://salesdeesk.vercel.app)**  
+*(You can edit this link on GitHub to point to your exact URL if needed)*
+
+---
+
 ## ✨ Key Features
 - **Dark Mode UI**: Responsive design using Tailwind CSS v4 and Framer Motion.
 - **Dynamic Calculation**: Real-time tax and total computations on line items.
