@@ -73,4 +73,9 @@ The frontend will start at `http://localhost:5174`.
 
 ## 📸 Screenshots
 
-*(Add screenshots of your application here after pushing to GitHub! Recommended: Home Page, Sales Order Editor, and the Generated PDF Invoice)*
+<img width="1920" height="1080" alt="Screenshot 2026-07-03 201133" src="https://github.com/user-attachments/assets/103dc8e8-eb02-401b-ac4b-e6c743653312" />
+<img width="1920" height="1080" alt="Screenshot 2026-07-03 201139" src="https://github.com/user-attachments/assets/d8888fe2-31bf-4c4f-a617-96056e45bbf4" />
+<img width="621" height="867" alt="Screenshot 2026-07-03 201719" src="https://github.com/user-attachments/assets/9f855ac2-23b0-462a-b9eb-f8c07a5c5856" />
+
+
+
