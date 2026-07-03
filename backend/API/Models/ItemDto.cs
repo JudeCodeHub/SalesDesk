@@ -1,0 +1,10 @@
+namespace SalesDesk.API.Models
+{
+    public class ItemDto
+    {
+        public int ItemId { get; set; }
+        public string ItemCode { get; set; }
+        public string Description { get; set; }
+        public decimal Price { get; set; }
+    }
+}
